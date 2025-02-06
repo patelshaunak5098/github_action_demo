@@ -5,8 +5,11 @@ on: [push,workflow_dispatch]
 #    - workflow_dispach
 
 jobs:
-  greet:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: "greet user"
-        run: echo "Hello World!!!"
+      - name: "Get Clone"
+        run: |
+          echo "Clonnig Git repo..."
+          echo "${{toJson(github)}}"
+          git clone https://github.com/${{github.repository}}.git

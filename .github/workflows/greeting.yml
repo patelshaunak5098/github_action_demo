@@ -6,4 +6,9 @@ jobs:
     steps:
       - name: "greet user"
         run: echo "Hello World!!!"
+
+      - name: "greet user again!!"
+        run: |                            #here we can use pipe symbol to use muliple commands
+          echo "Hello World Again!!!"
+          echo "Second Command"
   
