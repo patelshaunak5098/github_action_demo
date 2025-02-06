@@ -1,9 +1,12 @@
-name: Greeting
+name: Deploy Dist
 on: [push,workflow_dispatch]
+#on:
+#    - push
+#    - workflow_dispach
+
 jobs:
   greet:
     runs-on: ubuntu-latest
     steps:
       - name: "greet user"
         run: echo "Hello World!!!"
-  
