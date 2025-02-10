@@ -1,5 +1,12 @@
 name: Deploy Dist
-on: [push,workflow_dispatch]
+on:
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - .github/workflows/*
+            - README.md
+#on: [push,workflow_dispatch]
 #on:
 #    - push
 #    - workflow_dispach
@@ -23,6 +30,12 @@ jobs:
       - name: Print Node Version
         run: node -v
 
+      - name: Cache Dependencies 
+        uses: actions/cache@v4
+        with:
+            path: ~/.npm
+            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install Dependencies 
         run: npm ci
 
@@ -30,7 +43,7 @@ jobs:
         run: npm run test
     
   deploy:
-    needs: test
+    needs: test             #this job will start running if test job is successfully completed otherwise this job wouldn't run
     runs-on: ubuntu-latest
     steps:
         - name: Get Code
@@ -40,6 +53,12 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version: 20 
+
+        - name: Cache Dependencies 
+          uses: actions/cache@v4
+          with:
+            path: ~/.npm
+            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
         - name: Install Dependecies
           run: npm ci
