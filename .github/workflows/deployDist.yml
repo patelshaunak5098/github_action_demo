@@ -3,7 +3,7 @@ on:
     push:
         branches:
             - main
-        paths-ignore:
+        paths-ignore:             #when we commite to mentioned paths it will not run the workflow.
             - .github/workflows/*
             - README.md
 #on: [push,workflow_dispatch]
@@ -41,30 +41,47 @@ jobs:
 
       - name: Run Tests 
         run: npm run test
-    
-  deploy:
-    needs: test             #this job will start running if test job is successfully completed otherwise this job wouldn't run
+  
+  build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
-        - name: Get Code
-          uses: actions/checkout@v4
+      - name: Get Code
+        uses: actions/checkout@v4
 
-        - name: Install NodeJs
-          uses: actions/setup-node@v4
+      - name: Install NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 
+
+      - name: Cache Dependencies 
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependecies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Upload Dist Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist
+              
+        
+  deploy:
+    needs: build             #this job will start running if test job is successfully completed otherwise this job wouldn't run
+    runs-on: ubuntu-latest
+    steps:
+        - name: Download Dist Artifact
+          uses: actions/download-artifact@v4
           with:
-            node-version: 20 
-
-        - name: Cache Dependencies 
-          uses: actions/cache@v4
-          with:
-            path: ~/.npm
-            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-        - name: Install Dependecies
-          run: npm ci
-
-        - name: Build Project
-          run: npm run build
+            name: dist-files
+            path: dist
 
         - name: Deply Project
           run: echo "Deploy successful!!!"
